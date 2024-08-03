@@ -4,8 +4,6 @@ import random
 
 menu_screen = pygame.image.load("title.png")
 
-
-
 os.chdir('images')
 images = [pygame.image.load(file) for file in os.listdir()]
 current_directory = os.getcwd()
