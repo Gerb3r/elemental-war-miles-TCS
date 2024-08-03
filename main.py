@@ -2,9 +2,9 @@ import pygame
 import os
 import random
 
-print ("Welcome to my game, use wasd to move and space to shoot. Good luck against your first enemy! Press enter to continue.")
+menu_screen = pygame.image.load("title.png")
 
-wait = input("Press enter to continue")
+
 
 os.chdir('images')
 images = [pygame.image.load(file) for file in os.listdir()]
@@ -23,7 +23,6 @@ parent_directory = os.path.abspath(os.path.join(current_directory, os.pardir))
 os.chdir(parent_directory)
 os.chdir('imagew')
 imagew = [pygame.image.load(file) for file in os.listdir()]
-
 
 dictionary_for_player_movements = {}
 dictionary_for_player_movements['w'] = imagew
@@ -103,9 +102,9 @@ WIDTH, HEIGHT = 600, 500
 DISPLAYSURF = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Elemental War')
 
+print ("Welcome to my game, use wasd to move and space to shoot. Good luck against your first enemy! Press P to continue.")
+
 current_image = 0
-
-
 
 # Set character position
 image_rect = images[current_image].get_rect()
@@ -185,6 +184,7 @@ def enemyAnimFunction():
 def player_hurt_animation():
   DISPLAYSURF.blit(player_hurt_frames[curr_player_animation], image_rect)
 
+pause = True
 
 # Main game loop
 run = True
@@ -197,6 +197,8 @@ while run:
       run = False
 
   keys = pygame.key.get_pressed()
+  if (keys[pygame.K_RETURN] or keys[pygame.K_KP_ENTER]) == True:
+    pause = not pause
   direction = character_movement(keys, image_rect)
   if timer % 5 == 0:
     print(f"{timer // 5} seconds have passed")
@@ -264,31 +266,34 @@ while run:
   # Clear the screen
   DISPLAYSURF.fill((255, 255, 255))
 
-  # Draw the character and fireball
-  if player_hurt:
-    player_hurt_animation()
-    curr_player_animation = (curr_player_animation + 1) % 2
-  else:
-    if direction == 'i':
-      DISPLAYSURF.blit(images[0], image_rect)
+  if not pause:
+    # Draw the character and fireball
+    if player_hurt:
+      player_hurt_animation()
+      curr_player_animation = (curr_player_animation + 1) % 2
     else:
-      DISPLAYSURF.blit(dictionary_for_player_movements[direction][current_image], image_rect)
+      if direction == 'i':
+        DISPLAYSURF.blit(images[0], image_rect)
+      else:
+        DISPLAYSURF.blit(dictionary_for_player_movements[direction][current_image], image_rect)
 
-  if enemy_hurt:
-    enemy_movement(image_rect, enemy_rect, 5)
+    if enemy_hurt:
+      enemy_movement(image_rect, enemy_rect, 5)
+    else:
+      enemy_movement(image_rect, enemy_rect, enemy_speed)
+
+    if enemy_hurt:
+      enemyAnimFunction()
+      curr_enemy_animation = (curr_enemy_animation + 1) % 2
+    else:
+      DISPLAYSURF.blit(enemyframes[0], enemy_rect)
+
+    if fireball_launched:
+      DISPLAYSURF.blit(fireballframes[curr_fireball],
+                      fireball_rect)  # Draw fireball if launched
+      curr_fireball = (curr_fireball + 1) % 3
   else:
-    enemy_movement(image_rect, enemy_rect, enemy_speed)
-
-  if enemy_hurt:
-    enemyAnimFunction()
-    curr_enemy_animation = (curr_enemy_animation + 1) % 2
-  else:
-    DISPLAYSURF.blit(enemyframes[0], enemy_rect)
-
-  if fireball_launched:
-    DISPLAYSURF.blit(fireballframes[curr_fireball],
-                     fireball_rect)  # Draw fireball if launched
-    curr_fireball = (curr_fireball + 1) % 3
+    DISPLAYSURF.blit(menu_screen, (0, 0))
   # Update the display
   pygame.display.update()
 
